@@ -57,14 +57,14 @@ void merge(int arr[][3], int l, int m, int r)
  
     /* Copy data to temp arrays L[] and R[] */
     for(i = 0; i < n1; i++) {
-    	L[i][0] = arr[i][0];
-    	L[i][1] = arr[i][1];
-    	L[i][2] = arr[i][2];
+    	L[i][0] = arr[l + i][0];
+    	L[i][1] = arr[l + i][1];
+    	L[i][2] = arr[l + i][2];
     }
     for(j = 0; j < n2; j++) {
-        R[j][0] = arr[i][0];
-        R[j][1] = arr[i][1];
-        R[j][2] = arr[i][2];
+        R[j][0] = arr[m + 1 + j][0];
+        R[j][1] = arr[m + 1 + j][1];
+        R[j][2] = arr[m + 1 + j][2];
     }
  
     /* Merge the temp arrays back into arr[l..r]*/
@@ -231,23 +231,28 @@ int main(int argc, char *argv[]) {
     temp[0][0] = 3;
     temp[0][1] = 1;
     temp[0][2] = 0;
+
     temp[1][0] = 7;
     temp[1][1] = 2;
     temp[1][2] = 0;
+
     temp[2][0] = 2;
     temp[2][1] = 2;
     temp[2][2] = 1;
+
     temp[3][0] = 9;
     temp[3][1] = 3;
     temp[3][2] = 0;
+
     temp[4][0] = 1;
     temp[4][1] = 3;
     temp[4][2] = 1;
+
     temp[5][0] = 4;
     temp[5][1] = 3;
     temp[5][2] = 2;
 
-    mergeSort(temp, 0, 5);
+    mergeSort(temp, 0, (sizeof(temp)/sizeof(temp[0])) - 1);
 
     for (int i = 0; i < 6; ++i) {
     	printf("%d %d %d\n", temp[i][0], temp[i][1], temp[i][2]);
