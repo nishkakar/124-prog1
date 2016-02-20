@@ -29,10 +29,10 @@ int find(int vertex, int* parents) {
 
 void link(int component1, int component2, int* parents, int* ranks) {
 	if (ranks[component1] > ranks[component2]) {
-
+        parents[component2] = component1;
 	}
 	else if (ranks[component1] < ranks[component2]) {
-		parents[component1] = parents[component2];
+		parents[component1] = component2; 
 	}
 	else if (ranks[component1] == ranks[component2]) {
 		++ranks[component1];
