@@ -101,6 +101,10 @@ float** find_mst(float** graph, int numpoints) {
         }
     }
 
+    free(sorted_edges);
+    free(parents);
+    free(ranks);
+
 	return mst;
 }
 
@@ -204,7 +208,7 @@ int main(int argc, char *argv[]) {
             free_graph(complete_graph, numpoints);
             free_graph(complete_mst, numpoints);
         }
-        average_weight = complete_mst_weights/ (float) iterations;
+        average_weight = complete_mst_weights / (float) iterations;
         average_time = total_time / (float) iterations;
     }
     else {
