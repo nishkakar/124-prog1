@@ -62,8 +62,6 @@ float** find_mst(float** graph, int numpoints) {
     float** mst = init_graph(numpoints);
 
 	int numedges = ((numpoints) * (numpoints - 1))/2;
-	
-	printf("PRE-SOLID\n");
 
 	float** sorted_edges = malloc(numedges * sizeof(float*) + (numedges * 3 * sizeof(float)));
 	bool contiguous = false;
@@ -75,17 +73,11 @@ float** find_mst(float** graph, int numpoints) {
 	    contiguous = true;
 	}
 	else {
-		printf("ENTERED THIS SHIT\n");
 		sorted_edges = malloc(numedges * sizeof(float*));
-		printf("FIRST MALLOC\n");
 		for (int i = 0; i < numedges; ++i) {
 			sorted_edges[i] = malloc(3 * sizeof(float));
-			if (i % 10000000 == 0)
-				printf("%d %d\n", numedges, i);
 		}
 	}
-
-	printf("SOLID\n");
 
 	// fill sorted edges with unsorted edges and edge weights from graph
 	int ctr = 0;
