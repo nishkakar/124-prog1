@@ -61,8 +61,6 @@ float** find_mst(float** graph, int numpoints) {
     float** mst = init_graph(numpoints);
 
 	int numedges = ((numpoints) * (numpoints - 1))/2;
-
-    printf("PLACE 1 %d\n", numedges);
 	
 	float** sorted_edges = malloc(numedges * sizeof(float*) + (numedges * 3 * sizeof(float)));
     float* pos = (float*) (sorted_edges + numedges);
@@ -70,7 +68,6 @@ float** find_mst(float** graph, int numpoints) {
         sorted_edges[i] = pos + i * 3;
     }
 
-    printf("PLACE 2\n");
 
 	// fill sorted edges with unsorted edges and edge weights from graph
 	int ctr = 0;
@@ -83,12 +80,8 @@ float** find_mst(float** graph, int numpoints) {
 		}
     }
 
-    printf("ENTERING SORT\n");
-
 	// sort edges based on edge weight
-	qsort(sorted_edges, numedges, sizeof(float[3 ]), CompareArrays);
-
-    printf("SORTED!\n");
+	qsort(*sorted_edges, numedges, sizeof(float[3 ]), CompareArrays);
 
     // make sets
     int* parents = (int*) malloc(numpoints * sizeof(int));
@@ -104,21 +97,6 @@ float** find_mst(float** graph, int numpoints) {
         if (find(u, parents) != find(v, parents)) {
             mst[u][v] = sorted_edges[i][0];
             mst[v][u] = sorted_edges[i][0];
-            ds_union(u, v, parents, ranks);
-        }
-    }
-
-    for (int k = 0; k < numpoints; ++k) {
-        parents[k] = k; 
-        ranks[k] = 1;
-    }
-
-    for (int j = 0; j < numedges; ++j) {
-        int u = sorted_edges[j][1];
-        int v = sorted_edges[j][2];
-        if (find(u, parents) != find(v, parents)) {
-            mst[u][v] = sorted_edges[j][0];
-            mst[v][u] = sorted_edges[j][0];
             ds_union(u, v, parents, ranks);
         }
     }
@@ -205,74 +183,53 @@ int main(int argc, char *argv[]) {
     int iterations = atoi(argv[3]);
     int dimension = atoi(argv[4]);
 
-    float complete_mst_weights = 0.0;
-    // // float euc_mst_weights = 0.0
 
+    printf("%s %s %s %s %s\n", argv[0], argv[1], argv[2], argv[3], argv[4]);
 
-    for (int i = 0; i < iterations; ++i) {
-        float** complete_graph = generate_complete_graph(numpoints);
-        float** complete_mst = find_mst(complete_graph, numpoints);
+    float average_weight, average_time;
 
-        complete_mst_weights += find_mst_weight(complete_mst, numpoints);
+    if (dimension == 0) {
+        float complete_mst_weights = 0.0;
+        float total_time = 0.0;
+        for (int i = 0; i < iterations; ++i) {
+            float** complete_graph = generate_complete_graph(numpoints);
 
-        // print_graph(complete_graph, numpoints);
-        // printf("\n");
-        // printf("\n");
-        // printf("\n");
-        // printf("\n");
-        // print_graph(complete_mst, numpoints);
+            clock_t start = clock(); 
+            float** complete_mst = find_mst(complete_graph, numpoints);
+            
+            total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
 
-        free_graph(complete_graph, numpoints);
-        free_graph(complete_mst, numpoints);
+            complete_mst_weights += find_mst_weight(complete_mst, numpoints);
+
+            free_graph(complete_graph, numpoints);
+            free_graph(complete_mst, numpoints);
+        }
+        average_weight = complete_mst_weights/ (float) iterations;
+        average_time = total_time / (float) iterations;
+    }
+    else {
+        float euc_mst_weights = 0.0;
+        float total_time = 0.0;
+        for (int i = 0; i < iterations; ++i) {
+            float** euc_graph = generate_euclidean_graph(numpoints, dimension);
+            
+            clock_t start = clock(); 
+            float** euc_mst = find_mst(euc_graph, numpoints);
+            
+            total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
+
+            euc_mst_weights += find_mst_weight(euc_mst, numpoints);
+
+            free_graph(euc_graph, numpoints);
+            free_graph(euc_mst, numpoints);
+        }
+        average_weight = euc_mst_weights/ (float) iterations;
+        average_time = total_time / (float) iterations;
     }
 
+    printf("Average weight: %f\n", average_weight);
+    printf("Average time: %f\n", average_time);
 
-    // for (int i = 0; i < iterations; ++i) {
-    //     float** euc_graph = generate_euclidean_graph(numpoints, dimension);
-    //     float** euc_mst = find_mst(euc_graph, numpoints);
-
-    //     euc_mst_weights += find_mst_weight(euc_mst, numpoints);
-
-    //     free_graph(euc_graph, numpoints);
-    //     free_graph(euc_mst, numpoints);
-    // }
-
-    float average_complete_mst = complete_mst_weights/ (float) iterations;
-    // float average_euc_mst = euc_mst_weights/ (float) iterations;    
-
-    // int temp[6][3];
-    // temp[0][0] = 3;
-    // temp[0][1] = 1;
-    // temp[0][2] = 0;
-
-    // temp[1][0] = 7;
-    // temp[1][1] = 2;
-    // temp[1][2] = 0;
-
-    // temp[2][0] = 2;
-    // temp[2][1] = 2;
-    // temp[2][2] = 1;
-
-    // temp[3][0] = 9;
-    // temp[3][1] = 3;
-    // temp[3][2] = 0;
-
-    // temp[4][0] = 1;
-    // temp[4][1] = 3;
-    // temp[4][2] = 1;
-
-    // temp[5][0] = 4;
-    // temp[5][1] = 3;
-    // temp[5][2] = 2;
-
-    // mergeSort(temp, 0, (sizeof(temp)/sizeof(temp[0])));
-
-
-    // qsort((const void*)&temp, 6, sizeof(int[3]), CompareArrays);
-
-
-    // for (int i = 0; i < 6; ++i) {
-    // 	printf("%d %d %d\n", temp[i][0], temp[i][1], temp[i][2]);
-    // }
+    printf("==========\n");
     return 0;
 }
