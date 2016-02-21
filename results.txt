@@ -178,3 +178,19 @@ Average time: 92.348587
 Average weight: 1010.161987
 Average time: 91.393631
 ==========
+./randmst 0 32768 5 0
+Average weight: 1.201990
+Average time: 273.328278
+==========
+./randmst 0 32768 5 2
+Average weight: 117.446640
+Average time: 264.715271
+==========
+./randmst 0 32768 5 3
+Average weight: 668.734192
+Average time: 257.673035
+==========
+./randmst 0 32768 5 4
+Average weight: 1687.436890
+Average time: 256.206146
+==========
