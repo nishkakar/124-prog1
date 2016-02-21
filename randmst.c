@@ -44,93 +44,34 @@ void ds_union(int vertex1, int vertex2, int* parents, int* ranks) {
 	link(find(vertex1, parents), find(vertex2, parents), parents, ranks);
 }
 
-// merge and mergeSort borrowed from http://geeksquiz.com/merge-sort/ with modifications
-/* Function to merge the two haves arr[l..m] and arr[m+1..r] of array arr[] */
-void merge(int arr[][3], int l, int m, int r)
-{
-    int i, j, k;
-    int n1 = m - l + 1;
-    int n2 =  r - m;
- 
-    /* create temp arrays */
-    int L[n1][3], R[n2][3];
- 
-    /* Copy data to temp arrays L[] and R[] */
-    for(i = 0; i < n1; i++) {
-    	L[i][0] = arr[l + i][0];
-    	L[i][1] = arr[l + i][1];
-    	L[i][2] = arr[l + i][2];
-    }
-    for(j = 0; j < n2; j++) {
-        R[j][0] = arr[m + 1 + j][0];
-        R[j][1] = arr[m + 1 + j][1];
-        R[j][2] = arr[m + 1 + j][2];
-    }
- 
-    /* Merge the temp arrays back into arr[l..r]*/
-    i = 0;
-    j = 0;
-    k = l;
-    while (i < n1 && j < n2)
-    {
-        if (L[i][0] <= R[j][0])
-        {
-            arr[k][0] = L[i][0];
-            arr[k][1] = L[i][1];
-            arr[k][2] = L[i][2];
-            i++;
-        }
-        else
-        {
-            arr[k][0] = R[j][0];
-            arr[k][1] = R[j][1];
-            arr[k][2] = R[j][2];
-            j++;
-        }
-        k++;
-    }
- 
-    /* Copy the remaining elements of L[], if there are any */
-    while (i < n1)
-    {
-        arr[k][0] = L[i][0];
-        arr[k][1] = L[i][1];
-        arr[k][2] = L[i][2];
-        i++;
-        k++;
-    }
- 
-    /* Copy the remaining elements of R[], if there are any */
-    while (j < n2)
-    {
-        arr[k][0] = R[j][0];
-        arr[k][1] = R[j][1];
-        arr[k][2] = R[j][2];
-        j++;
-        k++;
-    }
-}
- 
-/* l is for left index and r is right index of the sub-array
-  of arr to be sorted */
-void mergeSort(int arr[][3], int l, int r)
-{
-    if (l < r)
-    {
-        int m = l+(r-l)/2; //Same as (l+r)/2, but avoids overflow for large l and h
-        mergeSort(arr, l, m);
-        mergeSort(arr, m+1, r);
-        merge(arr, l, m, r);
-   	}
+int CompareArrays(const void* arr1, const void* arr2) {
+    // convert to correct type
+    const float* one = (const float*) arr1;
+    const float* two = (const float*) arr2;
+
+    // only compare first element of array
+    if (one[0] < two[0]) return -1;
+    if (one[0] > two[0]) return +1;
+
+    // edge weights are the same
+    return 0;
 }
 
 float** find_mst(float** graph, int numpoints) {
-	float** mst = init_graph(numpoints);
+    float** mst = init_graph(numpoints);
 
 	int numedges = ((numpoints) * (numpoints - 1))/2;
+
+    printf("PLACE 1 %d\n", numedges);
 	
-	int sorted_edges[numedges][3];
-	
+	float** sorted_edges = malloc(numedges * sizeof(float*) + (numedges * 3 * sizeof(float)));
+    float* pos = (float*) (sorted_edges + numedges);
+    for (int i = 0; i < numedges; ++i) {
+        sorted_edges[i] = pos + i * 3;
+    }
+
+    printf("PLACE 2\n");
+
 	// fill sorted edges with unsorted edges and edge weights from graph
 	int ctr = 0;
 	for (int i = 0; i < numpoints; ++i) {
@@ -140,13 +81,32 @@ float** find_mst(float** graph, int numpoints) {
 			sorted_edges[ctr][2] = j;
 			++ctr;
 		}
-	}
+    }
+
+    printf("ENTERING SORT\n");
 
 	// sort edges based on edge weight
-	mergeSort(sorted_edges, 0, numedges - 1);
+	qsort(sorted_edges, numedges, sizeof(float[3 ]), CompareArrays);
 
-	int* parents = (int*) malloc(numpoints * sizeof(int));
-	int* ranks = (int*) malloc(numpoints * sizeof(int));
+    printf("SORTED!\n");
+
+    // make sets
+    int* parents = (int*) malloc(numpoints * sizeof(int));
+    int* ranks = (int*) malloc(numpoints * sizeof(int));
+    for (int i = 0; i < numpoints; ++i) {
+        parents[i] = i;
+        ranks[i] = 1;
+    }
+
+    for (int i = 0; i < numedges; ++i) {
+        int u = sorted_edges[i][1];
+        int v = sorted_edges[i][2];
+        if (find(u, parents) != find(v, parents)) {
+            mst[u][v] = sorted_edges[i][0];
+            mst[v][u] = sorted_edges[i][0];
+            ds_union(u, v, parents, ranks);
+        }
+    }
 
 	return mst;
 }
@@ -212,51 +172,25 @@ void free_graph(float** graph, int numpoints) {
 }
 
 int main(int argc, char *argv[]) {
-    // // seed rand() w/ current time
-    // time_t t;
-    // srand((unsigned) time(&t));
+    // seed rand() w/ current time
+    time_t t;
+    srand((unsigned) time(&t));
 
-    // int numpoints = atoi(argv[2]);
-    // int dimension = atoi(argv[4]);
+    int numpoints = atoi(argv[2]);
+    int dimension = atoi(argv[4]);
 
-    // float** complete_graph = generate_complete_graph(numpoints);
+    float** complete_graph = generate_complete_graph(numpoints);
+    printf("GRAPH MADE\n");
+    float** complete_graph_mst = find_mst(complete_graph, numpoints);
+    printf("MST FOUND\n");
+    free_graph(complete_graph, numpoints);
+    free_graph(complete_graph_mst, numpoints);
+
     // float** euc_graph = generate_euclidean_graph(numpoints, dimension);
-
-   	// // print_graph(euc_graph, numpoints);
-
-    // free_graph(complete_graph, numpoints);
+    // float** euc_graph_mst = find_mst(euc_graph, numpoints);
+    // printf("euc graph mst found\n");
     // free_graph(euc_graph, numpoints);
-
-    int temp[6][3];
-    temp[0][0] = 3;
-    temp[0][1] = 1;
-    temp[0][2] = 0;
-
-    temp[1][0] = 7;
-    temp[1][1] = 2;
-    temp[1][2] = 0;
-
-    temp[2][0] = 2;
-    temp[2][1] = 2;
-    temp[2][2] = 1;
-
-    temp[3][0] = 9;
-    temp[3][1] = 3;
-    temp[3][2] = 0;
-
-    temp[4][0] = 1;
-    temp[4][1] = 3;
-    temp[4][2] = 1;
-
-    temp[5][0] = 4;
-    temp[5][1] = 3;
-    temp[5][2] = 2;
-
-    mergeSort(temp, 0, (sizeof(temp)/sizeof(temp[0])) - 1);
-
-    for (int i = 0; i < 6; ++i) {
-    	printf("%d %d %d\n", temp[i][0], temp[i][1], temp[i][2]);
-    }
+    // free_graph(euc_graph_mst, numpoints);
 
     return 0;
 }
