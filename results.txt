@@ -1,0 +1,180 @@
+./randmst 0 16 5 0
+Average weight: 0.910242
+Average time: 0.000041
+==========
+./randmst 0 16 5 2
+Average weight: 2.847254
+Average time: 0.000039
+==========
+./randmst 0 16 5 3
+Average weight: 4.755039
+Average time: 0.000040
+==========
+./randmst 0 16 5 4
+Average weight: 6.466502
+Average time: 0.000042
+==========
+./randmst 0 32 5 0
+Average weight: 1.153679
+Average time: 0.000144
+==========
+./randmst 0 32 5 2
+Average weight: 3.949350
+Average time: 0.000145
+==========
+./randmst 0 32 5 3
+Average weight: 7.218232
+Average time: 0.000143
+==========
+./randmst 0 32 5 4
+Average weight: 10.665899
+Average time: 0.000144
+==========
+./randmst 0 64 5 0
+Average weight: 1.193585
+Average time: 0.000630
+==========
+./randmst 0 64 5 2
+Average weight: 5.462847
+Average time: 0.000620
+==========
+./randmst 0 64 5 3
+Average weight: 11.522412
+Average time: 0.000629
+==========
+./randmst 0 64 5 4
+Average weight: 17.492243
+Average time: 0.001021
+==========
+./randmst 0 128 5 0
+Average weight: 1.178059
+Average time: 0.002842
+==========
+./randmst 0 128 5 2
+Average weight: 7.642365
+Average time: 0.002863
+==========
+./randmst 0 128 5 3
+Average weight: 17.734493
+Average time: 0.002843
+==========
+./randmst 0 128 5 4
+Average weight: 28.478073
+Average time: 0.002814
+==========
+./randmst 0 256 5 0
+Average weight: 1.222106
+Average time: 0.013560
+==========
+./randmst 0 256 5 2
+Average weight: 10.458155
+Average time: 0.013748
+==========
+./randmst 0 256 5 3
+Average weight: 27.601141
+Average time: 0.012737
+==========
+./randmst 0 256 5 4
+Average weight: 47.556007
+Average time: 0.013212
+==========
+./randmst 0 512 5 0
+Average weight: 1.217870
+Average time: 0.058971
+==========
+./randmst 0 512 5 2
+Average weight: 14.947812
+Average time: 0.060097
+==========
+./randmst 0 512 5 3
+Average weight: 43.433441
+Average time: 0.060354
+==========
+./randmst 0 512 5 4
+Average weight: 78.624039
+Average time: 0.059589
+==========
+./randmst 0 1024 5 0
+Average weight: 1.212209
+Average time: 0.265320
+==========
+./randmst 0 1024 5 2
+Average weight: 21.030167
+Average time: 0.260153
+==========
+./randmst 0 1024 5 3
+Average weight: 68.108025
+Average time: 0.263885
+==========
+./randmst 0 1024 5 4
+Average weight: 129.984909
+Average time: 0.257887
+==========
+./randmst 0 2048 5 0
+Average weight: 1.192648
+Average time: 1.138707
+==========
+./randmst 0 2048 5 2
+Average weight: 29.716831
+Average time: 1.114037
+==========
+./randmst 0 2048 5 3
+Average weight: 107.424026
+Average time: 1.126158
+==========
+./randmst 0 2048 5 4
+Average weight: 216.183960
+Average time: 1.111318
+==========
+./randmst 0 4096 5 0
+Average weight: 1.186509
+Average time: 4.912593
+==========
+./randmst 0 4096 5 2
+Average weight: 41.689995
+Average time: 4.901032
+==========
+./randmst 0 4096 5 3
+Average weight: 169.175095
+Average time: 4.944727
+==========
+./randmst 0 4096 5 4
+Average weight: 361.403229
+Average time: 4.884236
+==========
+./randmst 0 8192 5 0
+Average weight: 1.195755
+Average time: 21.338863
+==========
+./randmst 0 8192 5 2
+Average weight: 58.813122
+Average time: 21.144413
+==========
+./randmst 0 8192 5 3
+Average weight: 267.095398
+Average time: 21.195362
+==========
+./randmst 0 8192 5 4
+Average weight: 603.341003
+Average time: 21.177134
+==========
+./randmst 0 16384 2 0
+Average weight: 1.206273
+Average time: 91.475235
+==========
+./randmst 0 16384 5 0
+Average weight: 1.199287
+Average time: 93.264061
+==========
+./randmst 0 16384 5 2
+Average weight: 83.274612
+Average time: 92.724312
+==========
+./randmst 0 16384 5 3
+Average weight: 422.306641
+Average time: 92.348587
+==========
+./randmst 0 16384 5 4
+Average weight: 1010.161987
+Average time: 91.393631
+==========
