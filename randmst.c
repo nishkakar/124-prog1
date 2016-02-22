@@ -212,12 +212,12 @@ int main(int argc, char *argv[]) {
     printf("%s %s %s %s %s\n", argv[0], argv[1], argv[2], argv[3], argv[4]);
 
     float average_weight, average_time;
+    float* max_edge_weight = malloc(sizeof(float));
+    *max_edge_weight = 0.0;
 
     if (dimension == 0) {
         float complete_mst_weights = 0.0;
         float total_time = 0.0;
-        float* max_edge_weight = malloc(sizeof(float));
-        *max_edge_weight = 0.0;
         for (int i = 0; i < iterations; ++i) {
             float** complete_graph = generate_complete_graph(numpoints);
 
@@ -231,15 +231,12 @@ int main(int argc, char *argv[]) {
             free_graph(complete_graph, numpoints);
             free_graph(complete_mst, numpoints);
         }
-        printf("Max edge weight: %f\n", *max_edge_weight);
         average_weight = complete_mst_weights / (float) iterations;
         average_time = total_time / (float) iterations;
     }
     else {
         float euc_mst_weights = 0.0;
         float total_time = 0.0;
-        float* max_edge_weight = malloc(sizeof(float));
-        *max_edge_weight = 0.0;
         for (int i = 0; i < iterations; ++i) {
             float** euc_graph = generate_euclidean_graph(numpoints, dimension);
             
@@ -250,8 +247,6 @@ int main(int argc, char *argv[]) {
 
             euc_mst_weights += find_mst_weight(euc_mst, numpoints, max_edge_weight);
 
-            printf("Max edge weight: %f\n", *max_edge_weight);
-
             free_graph(euc_graph, numpoints);
             free_graph(euc_mst, numpoints);
         }
@@ -259,6 +254,7 @@ int main(int argc, char *argv[]) {
         average_time = total_time / (float) iterations;
     }
 
+    printf("Max edge weight: %f\n", *max_edge_weight);
     printf("Average weight: %f\n", average_weight);
     printf("Average time: %f\n", average_time);
 
