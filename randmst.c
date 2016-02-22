@@ -5,21 +5,23 @@
 #include <math.h>
 #include <stdbool.h>
 
+// returns random float between 0.0 and 1.0
 float rand_float() {
     return (float) rand() / (float) RAND_MAX;
 }
 
+/* initializes a complete graph with numpoints # of vertices;
+   we implemented the graph in a form of an adjacency matrix */
 float** init_graph(int numpoints) {
-	// allocate graph
 	float** graph = (float**) malloc(numpoints * sizeof(float*));
 	for (int i = 0; i < numpoints; ++i) {
 		graph[i] = (float*) malloc(numpoints * sizeof(float));
 		memset(graph[i], 0, numpoints * sizeof(float));
 	}
-
 	return graph;
 }
 
+// frees all memory allocated for adjacency matrix graph representation
 void free_graph(float** graph, int numpoints) {
 	for (int i = 0; i < numpoints; ++i) {
 		free(graph[i]);
@@ -27,6 +29,8 @@ void free_graph(float** graph, int numpoints) {
 	free(graph);
 }
 
+/* recursively finds the parent node of a given vertex in order to 
+   return which component the vertex belongs to */
 int find(int vertex, int* parents) {
 	if (vertex != parents[vertex]) {
 		parents[vertex] = find(parents[vertex], parents);
@@ -35,6 +39,10 @@ int find(int vertex, int* parents) {
 	return parents[vertex];
 }
 
+/* links two components based on rank; assigns the higher ranked component
+   to be the parent of the lower ranked component to ensure that the tree
+   is balanced; if ranks are equal, defaults to component1 being assigned as
+   component2's parent and increments the rank of component1. */
 void link(int component1, int component2, int* parents, int* ranks) {
 	if (ranks[component1] > ranks[component2]) {
         parents[component2] = component1;
@@ -48,10 +56,12 @@ void link(int component1, int component2, int* parents, int* ranks) {
 	}
 }
 
+/* given two vertexes, finds their components and links them */
 void ds_union(int vertex1, int vertex2, int* parents, int* ranks) {
 	link(find(vertex1, parents), find(vertex2, parents), parents, ranks);
 }
 
+// comparator we pass into qsort in order to sort edges in our adjacency matrix by weight
 int CompareArrays(const void* arr1, const void* arr2) {
     // convert to correct type
     const float* one = (const float*) arr1;
@@ -65,12 +75,15 @@ int CompareArrays(const void* arr1, const void* arr2) {
     return 0;
 }
 
+// implemented Kruskal's algorithm to find the minimum spanning tree in a given graph
 float** find_mst(float** graph, int numpoints, unsigned int* numedges_ptr) {
 	unsigned int numedges = *numedges_ptr;
 
-	unsigned int sorted_edges_size = numedges * sizeof(float*) + (numedges * 3 * sizeof(float));
-
+    // allocate memory for edges sorted by weight; store the weight and the two vertexes of the edge
 	float** sorted_edges = malloc(numedges * sizeof(float*) + (numedges * 3 * sizeof(float)));
+    
+    /* if we were able to allocate all necessary memory at once, assigns memory;
+       else makes separate malloc calls edge by edge */
 	bool contiguous = false;
 	if (sorted_edges != NULL) {
 	    float* pos = (float*) (sorted_edges + numedges);
@@ -86,7 +99,7 @@ float** find_mst(float** graph, int numpoints, unsigned int* numedges_ptr) {
 		}
 	}
 
-	// fill sorted edges with unsorted edges and edge weights from graph
+	// fill sorted_edges with unsorted edges and edge weights from graph
 	int ctr = 0;
 	for (int i = 0; i < numpoints; ++i) {
 		for (int j = 0; j < i; ++j) {
@@ -99,6 +112,7 @@ float** find_mst(float** graph, int numpoints, unsigned int* numedges_ptr) {
 		}
     }
 
+    // since we don't need this graph we free the memory to allow space for the mst graph
     free_graph(graph, numpoints);
     float** mst = init_graph(numpoints);
 
@@ -113,6 +127,7 @@ float** find_mst(float** graph, int numpoints, unsigned int* numedges_ptr) {
         ranks[i] = 1;
     }
 
+    // iterate through sorted edges and construct minimum spanning tree
     for (int i = 0; i < numedges; ++i) {
         int u = sorted_edges[i][1];
         int v = sorted_edges[i][2];
@@ -136,6 +151,7 @@ float** find_mst(float** graph, int numpoints, unsigned int* numedges_ptr) {
 	return mst;
 }
 
+// assigns an initialized graph random edge weights and filters out edges to help with memory/speed issues
 float** generate_complete_graph(int numpoints, unsigned int* numedges) {
 	float** graph = init_graph(numpoints);
 
@@ -155,6 +171,7 @@ float** generate_complete_graph(int numpoints, unsigned int* numedges) {
 	return graph;
 }
 
+// calculates the distance between two points in a given dimensional space
 float distance(float* point1, float* point2, int d) {
 	double sum = 0;
 	for (int i = 0; i < d; ++i) {
@@ -163,6 +180,8 @@ float distance(float* point1, float* point2, int d) {
 	return pow(sum, 0.5);
 }
 
+/* assigns an initialized graph with random edge weights according to dimension 
+   and filters out edges we're certain won't make it into our minimum spanning tree */
 float** generate_euclidean_graph(int numpoints, int dim, unsigned int* numedges) {
 	float** graph = init_graph(numpoints);
 
@@ -184,6 +203,7 @@ float** generate_euclidean_graph(int numpoints, int dim, unsigned int* numedges)
 		for (int j = 0; j < i; ++j) {
 			graph[i][j] = distance(coordinates[i], coordinates[j], dim);
 
+            // filters out edges based on dimensions
 			if (numpoints > 4096 && graph[i][j] > max_vals[dim]) {
 				graph[i][j] = 0.0;
 				*numedges = *numedges - 1;
@@ -194,6 +214,7 @@ float** generate_euclidean_graph(int numpoints, int dim, unsigned int* numedges)
 	return graph;
 }
 
+// largely for debugging and testing purposes, prints all vertexes and edge weights in graph
 void print_graph(float** graph, int numpoints) {
 	// prints out adjacency matrix
     for (int i = 0; i < numpoints; ++i) {
@@ -204,6 +225,9 @@ void print_graph(float** graph, int numpoints) {
     }
 }
 
+/* adds up all the edge weights in a minimum spanning tree;
+   also kept track of max edge weight to figure out what 
+   value to filter edge weights on */
 float find_mst_weight(float** graph, int numpoints, float* max_edge_weight) {
     float total_weight = 0.0;
     for (int i = 0; i < numpoints; ++i) {
@@ -220,7 +244,7 @@ float find_mst_weight(float** graph, int numpoints, float* max_edge_weight) {
 }
 
 int main(int argc, char *argv[]) {
-    // // seed rand() w/ current time
+    // seed rand() w/ current time
     time_t t;
     srand((unsigned) time(&t));
 
@@ -228,55 +252,49 @@ int main(int argc, char *argv[]) {
     int iterations = atoi(argv[3]);
     int dimension = atoi(argv[4]);
 
-
+    // display entered command
     printf("%s %s %s %s %s\n", argv[0], argv[1], argv[2], argv[3], argv[4]);
 
     float average_weight, average_time;
+
+    /* used to keep track of the max edge weight ever found in multiple iterations of finding 
+       an mst for a particular graph type. we can these use this value to filter our edges */
     float* max_edge_weight = malloc(sizeof(float));
     *max_edge_weight = 0.0;
 
+    /* used to keep track of how many edges have been filtered out so we know how much 
+       space to malloc for sorted_edges */
    	unsigned int* numedges = malloc(sizeof(unsigned int));
 
-    if (dimension == 0) {
-        float complete_mst_weights = 0.0;
-        float total_time = 0.0;
-        for (int i = 0; i < iterations; ++i) {
-        	*numedges = ((unsigned int) (numpoints) * (unsigned int) (numpoints - 1))/2;
+    float total_mst_weights = 0.0;
+    float total_time = 0.0;
 
-            float** complete_graph = generate_complete_graph(numpoints, numedges);
+    for (int i = 0; i < iterations; ++i) {
+        // need to reinitialize in every iteration because we filtered edges
+        *numedges = ((unsigned int) (numpoints) * (unsigned int) (numpoints - 1))/2;
 
-            clock_t start = clock(); 
-            float** complete_mst = find_mst(complete_graph, numpoints, numedges);
-            
-            total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
+        // generate graph based on dimension
+        float** graph;
+        if (dimension == 0) 
+            graph = generate_complete_graph(numpoints, numedges);
+        else
+            graph = generate_euclidean_graph(numpoints, dimension, numedges);
 
-            complete_mst_weights += find_mst_weight(complete_mst, numpoints, max_edge_weight);
+        // time how long it takes to find the minimum spanning tree
+        clock_t start = clock(); 
+        float** mst = find_mst(graph, numpoints, numedges);
+        total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
 
-            free_graph(complete_mst, numpoints);
-        }
-        average_weight = complete_mst_weights / (float) iterations;
-        average_time = total_time / (float) iterations;
+        // increment total_mst_weights by the weight of the mst in this iteration
+        total_mst_weights += find_mst_weight(mst, numpoints, max_edge_weight);
+
+        // free mst; the original generated graph is already freed in the find_mst function
+        free_graph(mst, numpoints);
     }
-    else {
-        float euc_mst_weights = 0.0;
-        float total_time = 0.0;
-        for (int i = 0; i < iterations; ++i) {
-        	*numedges = ((unsigned int) (numpoints) * (unsigned int) (numpoints - 1))/2;
 
-            float** euc_graph = generate_euclidean_graph(numpoints, dimension, numedges);
-
-            clock_t start = clock(); 
-            float** euc_mst = find_mst(euc_graph, numpoints, numedges);
-            
-            total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
-
-            euc_mst_weights += find_mst_weight(euc_mst, numpoints, max_edge_weight);
-
-            free_graph(euc_mst, numpoints);
-        }
-        average_weight = euc_mst_weights/ (float) iterations;
-        average_time = total_time / (float) iterations;
-    }
+    // calculate average weight and time
+    average_weight = total_mst_weights / (float) iterations;
+    average_time = total_time / (float) iterations;
 
     printf("Num edges (last iteration): %u\n", *numedges);
     printf("Num edges filtered out (last iteration): %u\n", ((numpoints) * (numpoints - 1))/2 - *numedges);
