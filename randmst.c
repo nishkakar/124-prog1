@@ -144,8 +144,8 @@ float** generate_complete_graph(int numpoints, unsigned int* numedges) {
 		for (int j = 0; j < i; ++j) {
 			graph[i][j] = rand_float();
 
-			// for numpoints > 1024 filter out edges greater than 0.03
-			if (numpoints > 1024 && graph[i][j] > 0.03) {
+			// for numpoints > 4096 filter out edges greater than 0.03
+			if (numpoints > 4096 && graph[i][j] > 0.03) {
 				graph[i][j] = 0.0;
 				*numedges = *numedges - 1;
 			}
@@ -174,7 +174,7 @@ float** generate_euclidean_graph(int numpoints, int dim, unsigned int* numedges)
 		}
 	}
 
-	// max_val of edge to keep for n > 1024 (filter out rest)
+	// max_val of edge to keep for n > 4096 (filter out rest)
 	// indexed by dim
 	float max_vals[5] = {0, 0, 0.1, 0.25, 0.4};
 
@@ -184,7 +184,7 @@ float** generate_euclidean_graph(int numpoints, int dim, unsigned int* numedges)
 		for (int j = 0; j < i; ++j) {
 			graph[i][j] = distance(coordinates[i], coordinates[j], dim);
 
-			if (numpoints > 1024 && graph[i][j] > max_vals[dim]) {
+			if (numpoints > 4096 && graph[i][j] > max_vals[dim]) {
 				graph[i][j] = 0.0;
 				*numedges = *numedges - 1;
 			}
