@@ -245,8 +245,8 @@ float find_mst_weight(float** graph, int numpoints, float* max_edge_weight) {
 
 int main(int argc, char *argv[]) {
     // seed rand() w/ current time
-    time_t t;
-    srand((unsigned) time(&t));
+    // time_t t;
+    // srand((unsigned) time(&t));
 
     int numpoints = atoi(argv[2]);
     int iterations = atoi(argv[3]);
@@ -268,8 +268,10 @@ int main(int argc, char *argv[]) {
 
     float total_mst_weights = 0.0;
     float total_time = 0.0;
+    time_t t;
 
     for (int i = 0; i < iterations; ++i) {
+        srand((unsigned) time(&t));
         // need to reinitialize in every iteration because we filtered edges
         *numedges = ((unsigned int) (numpoints) * (unsigned int) (numpoints - 1))/2;
 
