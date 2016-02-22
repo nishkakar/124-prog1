@@ -11,13 +11,15 @@ float rand_float() {
 }
 
 /* initializes a complete graph with numpoints # of vertices;
-   we implemented the graph in a form of an adjacency matrix */
+   we implemented the graph in the form of an adjacency matrix */
 float** init_graph(int numpoints) {
 	float** graph = (float**) malloc(numpoints * sizeof(float*));
+
 	for (int i = 0; i < numpoints; ++i) {
 		graph[i] = (float*) malloc(numpoints * sizeof(float));
 		memset(graph[i], 0, numpoints * sizeof(float));
 	}
+
 	return graph;
 }
 
@@ -26,6 +28,7 @@ void free_graph(float** graph, int numpoints) {
 	for (int i = 0; i < numpoints; ++i) {
 		free(graph[i]);
 	}
+
 	free(graph);
 }
 
@@ -47,9 +50,11 @@ void link(int component1, int component2, int* parents, int* ranks) {
 	if (ranks[component1] > ranks[component2]) {
         parents[component2] = component1;
 	}
+
 	else if (ranks[component1] < ranks[component2]) {
 		parents[component1] = component2; 
 	}
+
 	else if (ranks[component1] == ranks[component2]) {
 		++ranks[component1];
 		parents[component2] = component1;		
@@ -177,6 +182,7 @@ float distance(float* point1, float* point2, int d) {
 	for (int i = 0; i < d; ++i) {
 		sum += pow((double) point1[i] - point2[i], (double) 2);
 	}
+
 	return pow(sum, 0.5);
 }
 
@@ -244,10 +250,6 @@ float find_mst_weight(float** graph, int numpoints, float* max_edge_weight) {
 }
 
 int main(int argc, char *argv[]) {
-    // seed rand() w/ current time
-    // time_t t;
-    // srand((unsigned) time(&t));
-
     int numpoints = atoi(argv[2]);
     int iterations = atoi(argv[3]);
     int dimension = atoi(argv[4]);
