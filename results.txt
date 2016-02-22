@@ -215,3 +215,10 @@ Max edge weight: 0.046371
 Average weight: 1058.558594
 Average time: 61.727455
 ==========
+./randmst 0 65536 5 4
+Num edges (last iteration): 149765755
+Num edges filtered out (last iteration): 4145168773
+Max edge weight: 0.094231
+Average weight: 2827.229980
+Average time: 83.062721
+==========
