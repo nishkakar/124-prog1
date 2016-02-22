@@ -1,7 +1,6 @@
 #!/bin/bash
 
-declare -a arr=(16 32 64 128 256 512 1024 2048 4096 8192 16384 32768 65536)
-rm results.txt
+declare -a arr=(65536)
 make randmst
 for i in "${arr[@]}"
 do

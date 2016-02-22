@@ -1,0 +1,20 @@
+./randmst 0 1024 250 0
+Max edge weight: 0.011640
+Average weight: 1.198549
+Average time: 0.173224
+==========
+./randmst 0 1024 250 2
+Max edge weight: 0.085115
+Average weight: 21.042048
+Average time: 0.170660
+==========
+./randmst 0 1024 250 3
+Max edge weight: 0.199988
+Average weight: 68.053902
+Average time: 0.172019
+==========
+./randmst 0 1024 250 4
+Max edge weight: 0.307987
+Average weight: 130.056000
+Average time: 0.170647
+==========

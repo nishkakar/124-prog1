@@ -20,6 +20,13 @@ float** init_graph(int numpoints) {
 	return graph;
 }
 
+void free_graph(float** graph, int numpoints) {
+	for (int i = 0; i < numpoints; ++i) {
+		free(graph[i]);
+	}
+	free(graph);
+}
+
 int find(int vertex, int* parents) {
 	if (vertex != parents[vertex]) {
 		parents[vertex] = find(parents[vertex], parents);
@@ -59,9 +66,9 @@ int CompareArrays(const void* arr1, const void* arr2) {
 }
 
 float** find_mst(float** graph, int numpoints, unsigned int* numedges_ptr) {
-    float** mst = init_graph(numpoints);
+	unsigned int numedges = *numedges_ptr;
 
-	int numedges = (int) *numedges_ptr;
+	unsigned int sorted_edges_size = numedges * sizeof(float*) + (numedges * 3 * sizeof(float));
 
 	float** sorted_edges = malloc(numedges * sizeof(float*) + (numedges * 3 * sizeof(float)));
 	bool contiguous = false;
@@ -91,6 +98,9 @@ float** find_mst(float** graph, int numpoints, unsigned int* numedges_ptr) {
 			}
 		}
     }
+
+    free_graph(graph, numpoints);
+    float** mst = init_graph(numpoints);
 
 	// sort edges based on edge weight
 	qsort(*sorted_edges, numedges, sizeof(float[3]), CompareArrays);
@@ -153,7 +163,7 @@ float distance(float* point1, float* point2, int d) {
 	return pow(sum, 0.5);
 }
 
-float** generate_euclidean_graph(int numpoints, int dim) {
+float** generate_euclidean_graph(int numpoints, int dim, unsigned int* numedges) {
 	float** graph = init_graph(numpoints);
 
 	// temporary storage for coordinates
@@ -164,11 +174,20 @@ float** generate_euclidean_graph(int numpoints, int dim) {
 		}
 	}
 
+	// max_val of edge to keep for n > 1024 (filter out rest)
+	// indexed by dim
+	float max_vals[5] = {0, 0, 0.1, 0.25, 0.4};
+
 	// fill graph with random euclidean distances
 	// by randomly generating coordinates
 	for (int i = 0; i < numpoints; ++i) {
 		for (int j = 0; j < i; ++j) {
 			graph[i][j] = distance(coordinates[i], coordinates[j], dim);
+
+			if (numpoints > 1024 && graph[i][j] > max_vals[dim]) {
+				graph[i][j] = 0.0;
+				*numedges = *numedges - 1;
+			}
 		}
 	}
 
@@ -183,13 +202,6 @@ void print_graph(float** graph, int numpoints) {
     	}
     	printf("\n");
     }
-}
-
-void free_graph(float** graph, int numpoints) {
-	for (int i = 0; i < numpoints; ++i) {
-		free(graph[i]);
-	}
-	free(graph);
 }
 
 float find_mst_weight(float** graph, int numpoints, float* max_edge_weight) {
@@ -223,17 +235,15 @@ int main(int argc, char *argv[]) {
     float* max_edge_weight = malloc(sizeof(float));
     *max_edge_weight = 0.0;
 
+   	unsigned int* numedges = malloc(sizeof(unsigned int));
+
     if (dimension == 0) {
         float complete_mst_weights = 0.0;
         float total_time = 0.0;
         for (int i = 0; i < iterations; ++i) {
-        	unsigned int* numedges = malloc(sizeof(unsigned int));
         	*numedges = ((unsigned int) (numpoints) * (unsigned int) (numpoints - 1))/2;
 
             float** complete_graph = generate_complete_graph(numpoints, numedges);
-
-            printf("Number of edges: %u\n", *numedges);
-            printf("Number of edges filtered out: %u\n", ((numpoints) * (numpoints - 1))/2 - *numedges);
 
             clock_t start = clock(); 
             float** complete_mst = find_mst(complete_graph, numpoints, numedges);
@@ -242,7 +252,6 @@ int main(int argc, char *argv[]) {
 
             complete_mst_weights += find_mst_weight(complete_mst, numpoints, max_edge_weight);
 
-            free_graph(complete_graph, numpoints);
             free_graph(complete_mst, numpoints);
         }
         average_weight = complete_mst_weights / (float) iterations;
@@ -252,11 +261,10 @@ int main(int argc, char *argv[]) {
         float euc_mst_weights = 0.0;
         float total_time = 0.0;
         for (int i = 0; i < iterations; ++i) {
-        	unsigned int* numedges = malloc(sizeof(int));
-        	*numedges = ((numpoints) * (numpoints - 1))/2;
+        	*numedges = ((unsigned int) (numpoints) * (unsigned int) (numpoints - 1))/2;
 
-            float** euc_graph = generate_euclidean_graph(numpoints, dimension);
-            
+            float** euc_graph = generate_euclidean_graph(numpoints, dimension, numedges);
+
             clock_t start = clock(); 
             float** euc_mst = find_mst(euc_graph, numpoints, numedges);
             
@@ -264,13 +272,14 @@ int main(int argc, char *argv[]) {
 
             euc_mst_weights += find_mst_weight(euc_mst, numpoints, max_edge_weight);
 
-            free_graph(euc_graph, numpoints);
             free_graph(euc_mst, numpoints);
         }
         average_weight = euc_mst_weights/ (float) iterations;
         average_time = total_time / (float) iterations;
     }
 
+    printf("Num edges (last iteration): %u\n", *numedges);
+    printf("Num edges filtered out (last iteration): %u\n", ((numpoints) * (numpoints - 1))/2 - *numedges);
     printf("Max edge weight: %f\n", *max_edge_weight);
     printf("Average weight: %f\n", average_weight);
     printf("Average time: %f\n", average_time);
