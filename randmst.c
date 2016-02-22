@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
     if (dimension == 0) {
         float complete_mst_weights = 0.0;
         float total_time = 0.0;
-        float* max_edge_weight;
+        float* max_edge_weight = malloc(sizeof(float));
         *max_edge_weight = 0.0;
         for (int i = 0; i < iterations; ++i) {
             float** complete_graph = generate_complete_graph(numpoints);
@@ -238,7 +238,7 @@ int main(int argc, char *argv[]) {
     else {
         float euc_mst_weights = 0.0;
         float total_time = 0.0;
-        float* max_edge_weight;
+        float* max_edge_weight = malloc(sizeof(float));
         *max_edge_weight = 0.0;
         for (int i = 0; i < iterations; ++i) {
             float** euc_graph = generate_euclidean_graph(numpoints, dimension);
