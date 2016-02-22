@@ -184,13 +184,18 @@ void free_graph(float** graph, int numpoints) {
 	free(graph);
 }
 
-float find_mst_weight(float** graph, int numpoints) {
+float find_mst_weight(float** graph, int numpoints, float* max_edge_weight) {
     float total_weight = 0.0;
     for (int i = 0; i < numpoints; ++i) {
         for (int j = 0; j < i; ++j) {
             total_weight += graph[i][j];
+
+            if (graph[i][j] > *max_edge_weight) {
+                *max_edge_weight = graph[i][j];
+            }
         }
     }
+
     return total_weight;
 }
 
@@ -211,6 +216,8 @@ int main(int argc, char *argv[]) {
     if (dimension == 0) {
         float complete_mst_weights = 0.0;
         float total_time = 0.0;
+        float* max_edge_weight;
+        *max_edge_weight = 0.0;
         for (int i = 0; i < iterations; ++i) {
             float** complete_graph = generate_complete_graph(numpoints);
 
@@ -219,17 +226,20 @@ int main(int argc, char *argv[]) {
             
             total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
 
-            complete_mst_weights += find_mst_weight(complete_mst, numpoints);
+            complete_mst_weights += find_mst_weight(complete_mst, numpoints, max_edge_weight);
 
             free_graph(complete_graph, numpoints);
             free_graph(complete_mst, numpoints);
         }
+        printf("Max edge weight: %f\n", *max_edge_weight);
         average_weight = complete_mst_weights / (float) iterations;
         average_time = total_time / (float) iterations;
     }
     else {
         float euc_mst_weights = 0.0;
         float total_time = 0.0;
+        float* max_edge_weight;
+        *max_edge_weight = 0.0;
         for (int i = 0; i < iterations; ++i) {
             float** euc_graph = generate_euclidean_graph(numpoints, dimension);
             
@@ -238,7 +248,9 @@ int main(int argc, char *argv[]) {
             
             total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
 
-            euc_mst_weights += find_mst_weight(euc_mst, numpoints);
+            euc_mst_weights += find_mst_weight(euc_mst, numpoints, max_edge_weight);
+
+            printf("Max edge weight: %f\n", *max_edge_weight);
 
             free_graph(euc_graph, numpoints);
             free_graph(euc_mst, numpoints);
