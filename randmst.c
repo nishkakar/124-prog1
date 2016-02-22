@@ -1,3 +1,8 @@
+// ===============================
+// CS124 Programming Assignment 1
+// Ajay Nathan & Nishant Kakar
+// ===============================
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
