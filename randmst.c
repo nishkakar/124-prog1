@@ -58,10 +58,10 @@ int CompareArrays(const void* arr1, const void* arr2) {
     return 0;
 }
 
-float** find_mst(float** graph, int numpoints) {
+float** find_mst(float** graph, int numpoints, unsigned int* numedges_ptr) {
     float** mst = init_graph(numpoints);
 
-	int numedges = ((numpoints) * (numpoints - 1))/2;
+	int numedges = (int) *numedges_ptr;
 
 	float** sorted_edges = malloc(numedges * sizeof(float*) + (numedges * 3 * sizeof(float)));
 	bool contiguous = false;
@@ -83,15 +83,17 @@ float** find_mst(float** graph, int numpoints) {
 	int ctr = 0;
 	for (int i = 0; i < numpoints; ++i) {
 		for (int j = 0; j < i; ++j) {
-			sorted_edges[ctr][0] = graph[i][j];
-			sorted_edges[ctr][1] = i;
-			sorted_edges[ctr][2] = j;
-			++ctr;
+			if (graph[i][j] != 0.0) {
+				sorted_edges[ctr][0] = graph[i][j];
+				sorted_edges[ctr][1] = i;
+				sorted_edges[ctr][2] = j;
+				++ctr;
+			}
 		}
     }
 
 	// sort edges based on edge weight
-	qsort(*sorted_edges, numedges, sizeof(float[3 ]), CompareArrays);
+	qsort(*sorted_edges, numedges, sizeof(float[3]), CompareArrays);
 
     // make sets
     int* parents = (int*) malloc(numpoints * sizeof(int));
@@ -124,13 +126,19 @@ float** find_mst(float** graph, int numpoints) {
 	return mst;
 }
 
-float** generate_complete_graph(int numpoints) {
+float** generate_complete_graph(int numpoints, unsigned int* numedges) {
 	float** graph = init_graph(numpoints);
 
 	// fill graph with random numbers
 	for (int i = 0; i < numpoints; ++i) {
 		for (int j = 0; j < i; ++j) {
 			graph[i][j] = rand_float();
+
+			// for numpoints > 1024 filter out edges greater than 0.03
+			if (numpoints > 1024 && graph[i][j] > 0.03) {
+				graph[i][j] = 0.0;
+				*numedges = *numedges - 1;
+			}
 		}
 	}
 
@@ -219,10 +227,16 @@ int main(int argc, char *argv[]) {
         float complete_mst_weights = 0.0;
         float total_time = 0.0;
         for (int i = 0; i < iterations; ++i) {
-            float** complete_graph = generate_complete_graph(numpoints);
+        	unsigned int* numedges = malloc(sizeof(unsigned int));
+        	*numedges = ((unsigned int) (numpoints) * (unsigned int) (numpoints - 1))/2;
+
+            float** complete_graph = generate_complete_graph(numpoints, numedges);
+
+            printf("Number of edges: %u\n", *numedges);
+            printf("Number of edges filtered out: %u\n", ((numpoints) * (numpoints - 1))/2 - *numedges);
 
             clock_t start = clock(); 
-            float** complete_mst = find_mst(complete_graph, numpoints);
+            float** complete_mst = find_mst(complete_graph, numpoints, numedges);
             
             total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
 
@@ -238,10 +252,13 @@ int main(int argc, char *argv[]) {
         float euc_mst_weights = 0.0;
         float total_time = 0.0;
         for (int i = 0; i < iterations; ++i) {
+        	unsigned int* numedges = malloc(sizeof(int));
+        	*numedges = ((numpoints) * (numpoints - 1))/2;
+
             float** euc_graph = generate_euclidean_graph(numpoints, dimension);
             
             clock_t start = clock(); 
-            float** euc_mst = find_mst(euc_graph, numpoints);
+            float** euc_mst = find_mst(euc_graph, numpoints, numedges);
             
             total_time += (float) (clock() - start) / CLOCKS_PER_SEC;
 
