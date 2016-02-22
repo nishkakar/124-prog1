@@ -194,3 +194,24 @@ Average time: 257.673035
 Average weight: 1687.436890
 Average time: 256.206146
 ==========
+./randmst 0 65536 5 0
+Num edges (last iteration): 64428993
+Num edges filtered out (last iteration): 4230505535
+Max edge weight: 0.000204
+Average weight: 1.205783
+Average time: 42.841682
+==========
+./randmst 0 65536 5 2
+Num edges (last iteration): 61707568
+Num edges filtered out (last iteration): 4233226960
+Max edge weight: 0.008429
+Average weight: 165.887283
+Average time: 41.266991
+==========
+./randmst 0 65536 5 3
+Num edges (last iteration): 104230000
+Num edges filtered out (last iteration): 4190704528
+Max edge weight: 0.046371
+Average weight: 1058.558594
+Average time: 61.727455
+==========
